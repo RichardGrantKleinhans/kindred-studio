@@ -58,7 +58,8 @@ const CryptoCookie = (() => {
   }
 
   // Deterministic key from passphrase + site
-  // Teacher enters passphrase → same key on any device
+  // Teacher enters passphrase → deterministic fingerprint on any device
+  // ECDSA signing key is ephemeral (WebCrypto can't derive ECDSA from PBKDF2)
   async function generateDeterministic(passphrase, siteId) {
     const encoder = new TextEncoder();
     const material = await crypto.subtle.importKey(
@@ -66,24 +67,33 @@ const CryptoCookie = (() => {
       encoder.encode(passphrase),
       { name: "PBKDF2" },
       false,
-      ["deriveKey"]
+      ["deriveBits"]
     );
-    // Derive a seed specific to this site
-    const seed = await crypto.subtle.deriveKey(
+    // Derive deterministic bits for fingerprint
+    const bits = await crypto.subtle.deriveBits(
       {
         name: "PBKDF2",
         salt: encoder.encode("kindred-studio:" + siteId),
-        iterations: 310000, // OWASP recommended minimum
+        iterations: 310000,
         hash: "SHA-256",
       },
       material,
+      256
+    );
+    // Store the deterministic hash as the identity fingerprint
+    const hashArray = Array.from(new Uint8Array(bits));
+    const deterministicId = hashArray.map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+    // Generate ephemeral ECDSA for actual signing operations
+    const keyPair = await crypto.subtle.generateKey(
       { name: "ECDSA", namedCurve: "P-256" },
       true,
       ["sign", "verify"]
     );
-    KEY_STORE[siteId] = seed;
-    PUB_STORE[siteId] = seed; // For ECDSA derived key, pub extraction needs export
-    return seed;
+    KEY_STORE[siteId] = keyPair.privateKey;
+    PUB_STORE[siteId] = keyPair.publicKey;
+    // Attach deterministic ID so same passphrase = same identity
+    KEY_STORE[siteId + ":deterministicId"] = deterministicId;
+    return keyPair.publicKey;
   }
 
   // ── Challenge-Response ──
