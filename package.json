@@ -1,0 +1,21 @@
+{
+  "name": "kindred-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-powered adaptive education platform — Educational Equality for All",
+  "author": "Richard Grant Kleinhans",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.2.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
