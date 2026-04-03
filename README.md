@@ -1,22 +1,58 @@
 # Kindred Studio
 
-**Educational Equality for All**  
-*Built on a sofa in Stuart, Florida* 🔥 🍵
+**Personalized lessons for every student. No accounts. No tracking. No data leaves the browser.**
 
-> **AI Co-Development Disclosure:** Kindred Studio was developed in collaboration with Claude (Anthropic, Claude Opus 4.6). Claude contributed to code generation, documentation, architecture discussions, and curriculum research. All design decisions, pedagogical philosophy, and creative direction are by Richard Grant Kleinhans. This disclosure is made voluntarily in the interest of transparency about AI-assisted development.
+🔥 **Live:** [kindred-studio.vercel.app](https://kindred-studio.vercel.app)
 
------
+---
 
-## What Is This?
+## The Problem
 
-Kindred Studio is a unified educational platform with two core tools:
+Most edtech platforms require student emails, Google accounts, or district-managed logins before a child can access a lesson. Student data flows through corporate infrastructure by default. Teachers who care about privacy have no alternative.
 
-- **Kindling** — AI-powered lesson generator that creates personalized lessons, assignments, and assessments adapted to each student’s interests, level, language, and learning needs
-- **Kindred Planner** — modular block-based lesson plan editor where teachers build, structure, and export lesson plans their way
+## The Answer
 
-Both tools are connected through a shared authentication layer and data bridge. Kindling generates. The Planner structures. Together they form a complete curriculum workflow.
+Kindred Studio generates personalized lessons adapted to each student's interests, level, language, and learning needs — without collecting any personal data. Authentication is cryptographic and client-side. The AI only ever sees anonymized profiles. Names, schools, and diagnosis codes never leave the browser.
 
------
+Every student deserves the frontier, not the floor.
+
+---
+
+## Who This Is For
+
+- **Teachers** who don't want to manage student accounts or send PII through Google
+- **Special education educators** who need individualized content without compliance nightmares
+- **Homeschool families** who want adaptive curriculum without surveillance
+- **Language communities** preserving endangered languages through education (38 languages including Cherokee, Övdalsk, Māori, Hawaiian)
+- **Privacy-conscious schools** looking for COPPA compliance by architecture, not by policy
+
+---
+
+## What It Does
+
+**Kindling** — AI lesson generator. Enter a student profile (interests, level, language, learning needs, pedagogical philosophy). Get a personalized lesson, assignment, and assessment. Twelve philosophies built in: Kindred, Finnish, Montessori, Reggio Emilia, Waldorf, Forest School, Swedish, Norwegian, Te Whāriki, IB, Competency-Based, and Classical.
+
+**Kindred Planner** — Block-based lesson plan editor. Drag, reorder, lock, and export blocks. Eleven block types from Activity to Compliance to Parent Comms. Teachers build plans their way.
+
+**Classroom Mode** — Roster management, batch generation, and multi-lens assessment across six frameworks (Kindred, Finnish, Montessori, Competency, Waldorf, Forest School).
+
+All three tools share a single authentication layer and data bridge. Kindling generates. The Planner structures. Classroom scales.
+
+---
+
+## Privacy Architecture
+
+**No passwords are stored. Anywhere. Ever.**
+
+- **Teachers**: Passphrase → deterministic cryptographic key → same key on any device
+- **Students**: Teacher generates a random access code → ephemeral key → dies when session ends
+- **Parents**: View code → read-only ephemeral key → no data collected
+
+The AI never sees student names, schools, addresses, or diagnosis codes. PII is stripped client-side before any API call. The system is COPPA compliant by design, not by policy.
+
+Full technical details: see [Crypto Cookie Architecture](#authentication-crypto-cookie) below.
+
+---
 
 ## Architecture Overview
 
@@ -48,7 +84,7 @@ Both tools are connected through a shared authentication layer and data bridge. 
 └─────────────────────────────────────────────────┘
 ```
 
------
+---
 
 ## Authentication: Crypto Cookie
 
@@ -68,15 +104,15 @@ Most educational platforms require email accounts, passwords, and OAuth through 
 
 ### Key Properties
 
-|Property          |Implementation                                                    |
-|------------------|------------------------------------------------------------------|
-|Per-site isolation|Each site gets its own key pair — cross-site reuse fails by design|
-|Key rotation      |Auto-rotates every 5 minutes during active sessions               |
-|Key revocation    |Fingerprint-based revocation list checked at verification         |
-|Session tokens    |Cryptographically random, ephemeral, replaceable                  |
-|PII stripping     |Student identifiers never leave the client                        |
-|Storage footprint |~100-250 bytes per site                                           |
-|Signing speed     |Millisecond-scale                                                 |
+| Property | Implementation |
+|---|---|
+| Per-site isolation | Each site gets its own key pair — cross-site reuse fails by design |
+| Key rotation | Auto-rotates every 5 minutes during active sessions |
+| Key revocation | Fingerprint-based revocation list checked at verification |
+| Session tokens | Cryptographically random, ephemeral, replaceable |
+| PII stripping | Student identifiers never leave the client |
+| Storage footprint | ~100-250 bytes per site |
+| Signing speed | Millisecond-scale |
 
 ### Quantum-Resistant Architecture
 
@@ -87,7 +123,7 @@ The current implementation uses ECDSA P-256 (classical). The architecture is des
 
 The auth flow (challenge-response, rotation, revocation, PII stripping) remains identical. Only the crypto primitives change. When browser-native support for post-quantum algorithms arrives, this is a library swap, not a rewrite.
 
------
+---
 
 ## User Roles
 
@@ -106,19 +142,19 @@ The auth flow (challenge-response, rotation, revocation, PII stripping) remains 
 - View assigned lessons in their language at their level
 - Complete assignments inline
 - Self-reflection assessments
-- “What do you want to learn next?” feedback loop
+- "What do you want to learn next?" feedback loop
 - No account creation required
 - No email required
 - COPPA compliant by architecture
 
 ### Parent (🏡 View Code Auth)
 
-- Read-only view of child’s progress
+- Read-only view of child's progress
 - See completed lessons and growth metrics
 - Ephemeral session — no persistent tracking
 - No data collected about the parent
 
------
+---
 
 ## Kindling — Lesson Generator
 
@@ -160,7 +196,7 @@ Student Profile → System Prompt Builder → Claude API → Lesson
                                                       → Assessment
 ```
 
-Each stage feeds the next. The assignment is built from the lesson. The assessment is built from both. Every generation adapts to the student’s profile.
+Each stage feeds the next. The assignment is built from the lesson. The assessment is built from both. Every generation adapts to the student's profile.
 
 ### Design Principles
 
@@ -176,58 +212,58 @@ Each stage feeds the next. The assignment is built from the lesson. The assessme
 
 When the API is unavailable, Kindling generates template content personalized to the student profile. The app is always functional regardless of API status.
 
------
+---
 
 ## Lesson Planner — Block Editor
 
 ### Block Types
 
-|Block          |Icon|Purpose                                       |
-|---------------|----|----------------------------------------------|
-|Text / Notes   |📝   |Rich notes, descriptions, talking points      |
-|List           |📋   |Objectives, materials, questions              |
-|Activity       |🎯   |Structured activity with objective & procedure|
-|Reflection     |🪞   |Student reflection prompts                    |
-|Timer / Pacing |⏱️   |Duration and pacing notes                     |
-|Resources      |🔗   |Links, references, materials                  |
-|Assessment     |🌱   |Observations and growth criteria              |
-|Parent Comms   |💌   |Message home and take-home activities         |
-|Field / Outdoor|🌿   |Outdoor component and nature connections      |
-|Compliance     |📁   |Minimal archival documentation                |
-|Custom         |✨   |Teacher names it, fills it however they want  |
-|Divider        |—   |Visual separator with optional heading        |
+| Block | Icon | Purpose |
+|---|---|---|
+| Text / Notes | 📝 | Rich notes, descriptions, talking points |
+| List | 📋 | Objectives, materials, questions |
+| Activity | 🎯 | Structured activity with objective & procedure |
+| Reflection | 🪞 | Student reflection prompts |
+| Timer / Pacing | ⏱️ | Duration and pacing notes |
+| Resources | 🔗 | Links, references, materials |
+| Assessment | 🌱 | Observations and growth criteria |
+| Parent Comms | 💌 | Message home and take-home activities |
+| Field / Outdoor | 🌿 | Outdoor component and nature connections |
+| Compliance | 📁 | Minimal archival documentation |
+| Custom | ✨ | Teacher names it, fills it however they want |
+| Divider | — | Visual separator with optional heading |
 
 ### Features
 
 - **Modular**: Add, remove, reorder any block
-- **Collapsible**: Focus on what you’re working on
+- **Collapsible**: Focus on what you're working on
 - **Renamable**: Every block title is editable
 - **Templates**: Save your arrangement as a reusable template
 - **Export**: TXT export matching professional lesson plan format
-- **Block Locking**: 🔒/🔓 toggle per block. Locked blocks can’t be removed, reordered, or renamed. Content remains editable. Gold border visual indicator. Teachers lock their template structure, then fill content without risk of accidentally breaking the plan.
-- **Kindling Integration**: “Import from Kindling” populates matching blocks
+- **Block Locking**: 🔒/🔓 toggle per block. Locked blocks can't be removed, reordered, or renamed. Content remains editable. Gold border visual indicator. Teachers lock their template structure, then fill content without risk of accidentally breaking the plan.
+- **Kindling Integration**: "Import from Kindling" populates matching blocks
 
 ### Default Template
 
 Based on a lesson plan format informed by special education and trauma-informed pedagogy:
 
 1. Lesson Overview (text)
-1. Learning Objectives (list)
-1. Materials Needed (list)
-1. — Activities & Procedures —
-1. Opening Discussion (text)
-1. Activity 1 (activity)
-1. Wrap-Up Discussion (text)
-1. — Assessment & Documentation —
-1. Assessment (assessment)
-1. Field / Outdoor Component (outdoor)
-1. Documentation & Reflection (text)
-1. Parent Communication (parent)
-1. Compliance / Archiving (compliance)
+2. Learning Objectives (list)
+3. Materials Needed (list)
+4. --- Activities & Procedures ---
+5. Opening Discussion (text)
+6. Activity 1 (activity)
+7. Wrap-Up Discussion (text)
+8. --- Assessment & Documentation ---
+9. Assessment (assessment)
+10. Field / Outdoor Component (outdoor)
+11. Documentation & Reflection (text)
+12. Parent Communication (parent)
+13. Compliance / Archiving (compliance)
 
 Teachers can delete, add, or rearrange any of these. A Montessori teacher, a homeschool parent, and a Japanese instructor will each have different structures. The tool adapts to the teacher.
 
------
+---
 
 ## Classroom Mode
 
@@ -235,32 +271,32 @@ Classroom Mode lets a teacher manage multiple students and generate content for 
 
 ### Roster
 
-Add students with individual profiles (name, level, language, interests, needs). Each student’s profile is stored client-side only. The roster persists for the session.
+Add students with individual profiles (name, level, language, interests, needs). Each student's profile is stored client-side only. The roster persists for the session.
 
 ### Batch Generation
 
-Teacher enters a topic (e.g., “Volcanoes,” “Fractions,” “Poetry”). Kindling generates individualized content for each student based on their profile and the classroom’s selected philosophy. Students with similar profiles can share a generation call to reduce API costs.
+Teacher enters a topic (e.g., "Volcanoes," "Fractions," "Poetry"). Kindling generates individualized content for each student based on their profile and the classroom's selected philosophy. Students with similar profiles can share a generation call to reduce API costs.
 
 ### Assessment Lenses
 
 The same student data renders differently depending on which assessment lens the teacher selects:
 
-|Lens         |Input Type    |What It Measures                                    |
-|-------------|--------------|----------------------------------------------------|
-|Kindred      |1-5 scale     |Curiosity, connection-making, creativity, engagement|
-|Finnish      |Narrative text|Growth narrative, wellbeing, transversal competences|
-|Montessori   |1-5 scale     |Mastery level, independence, concentration          |
-|Competency   |1-5 scale     |Skill proficiency, evidence, pace                   |
-|Waldorf      |Narrative text|Artistic integration, developmental stage, narrative|
-|Forest School|1-5 scale     |Resilience, risk-taking, nature connection          |
+| Lens | Input Type | What It Measures |
+|---|---|---|
+| Kindred | 1-5 scale | Curiosity, connection-making, creativity, engagement |
+| Finnish | Narrative text | Growth narrative, wellbeing, transversal competences |
+| Montessori | 1-5 scale | Mastery level, independence, concentration |
+| Competency | 1-5 scale | Skill proficiency, evidence, pace |
+| Waldorf | Narrative text | Artistic integration, developmental stage, narrative |
+| Forest School | 1-5 scale | Resilience, risk-taking, nature connection |
 
-Teachers switch lenses via dropdown. The underlying observations don’t change — only the view. A teacher can assess a student through a Finnish lens on Monday and a Montessori lens on Tuesday using the same raw data.
+Teachers switch lenses via dropdown. The underlying observations don't change — only the view. A teacher can assess a student through a Finnish lens on Monday and a Montessori lens on Tuesday using the same raw data.
 
 ### Design Principle
 
-The assessment system stores philosophy-neutral raw observations. The lens is a rendering choice, not a data transformation. This means a school that changes its pedagogical approach doesn’t lose historical student data — it just switches the view.
+The assessment system stores philosophy-neutral raw observations. The lens is a rendering choice, not a data transformation. This means a school that changes its pedagogical approach doesn't lose historical student data — it just switches the view.
 
------
+---
 
 ## Privacy Architecture
 
@@ -281,7 +317,7 @@ The assessment system stores philosophy-neutral raw observations. The lens is a 
 
 ### GDPR Compliance
 
-- Data minimization: only collect what’s needed for lesson generation
+- Data minimization: only collect what's needed for lesson generation
 - Right to erasure: teacher or parent can wipe a student profile completely
 - No data export to third parties
 - Processing happens client-side wherever possible
@@ -316,7 +352,7 @@ CryptoCookie.stripPII(studentProfile)
 // Name and school NEVER leave the client.
 ```
 
------
+---
 
 ## Deployment
 
@@ -360,7 +396,6 @@ docker run -p 3000:3000 \
 ### Free Tier Deployment
 
 **Vercel** (recommended for prototype):
-
 ```bash
 npm i -g vercel
 vercel
@@ -368,7 +403,6 @@ vercel
 ```
 
 **Netlify**:
-
 ```bash
 npm i -g netlify-cli
 netlify deploy --prod
@@ -406,7 +440,7 @@ export default async function handler(req, res) {
 
 The client calls `/api/generate` instead of the Anthropic API directly. The key never touches the browser.
 
------
+---
 
 ## File Structure
 
@@ -429,12 +463,11 @@ kindred-studio/
 └── .env.local             ← ANTHROPIC_API_KEY (never committed)
 ```
 
------
+---
 
 ## Roadmap
 
 ### v0.1 (Current)
-
 - [x] Kindling lesson generator with demo fallback
 - [x] Kindred Planner modular block editor
 - [x] Crypto Cookie auth (ECDSA P-256)
@@ -453,7 +486,6 @@ kindred-studio/
 - [x] Curriculum sources reference (Finland, Sweden, Norway, NZ, Japan + 6 philosophies)
 
 ### v1 (Next)
-
 - [ ] Deploy to Vercel with working API proxy
 - [ ] Persistent storage (SQLite for single instance)
 - [ ] PDF / DOCX batch export from Classroom
@@ -463,30 +495,37 @@ kindred-studio/
 - [ ] Copy as Markdown per block
 
 ### v2 (Future)
-
 - [ ] Google Classroom / Canvas / Schoology LMS export
 - [ ] SCORM/LTI compatible packages
 - [ ] External API pulls (arXiv, Wikipedia, Khan Academy, OpenStax)
 - [ ] IEP compliance logging
-- [ ] Teacher i18n (interface in teacher’s language)
+- [ ] Teacher i18n (interface in teacher's language)
 - [ ] Quantum-resistant crypto swap (Dilithium + Kyber)
 - [ ] Student progress tracking across sessions
 - [ ] Growth analytics dashboard
 - [ ] Federation: each school runs own instance with optional template sync
 
------
+---
+
+## Transparency
+
+**AI Co-Development Disclosure:** Kindred Studio was developed in collaboration with Claude (Anthropic). Claude contributed to code generation, documentation, architecture discussions, and curriculum research. All design decisions, pedagogical philosophy, and creative direction are by Richard Grant Kleinhans. This disclosure is made voluntarily.
+
+---
 
 ## Credits
 
 **Architecture & Design**: Richard Grant Kleinhans (@polymathsofa)  
 **ORCID**: 0009-0006-2580-5712  
-**Co-development**: Claude (Anthropic)
+**Co-development**: Claude (Anthropic)  
 
 Built by an independent researcher with lived experience in special education and trauma-informed learning, who believes every student deserves the frontier, not the floor.
 
-The Crypto Cookie authentication system was designed as a web privacy standard replacement for tracking cookies — repurposed here to protect children’s data with the same architecture that could protect the entire web.
+*Built on a sofa in Stuart, Florida.* **Educational Equality for All.** 🔥 🍵
 
------
+The Crypto Cookie authentication system was designed as a web privacy standard replacement for tracking cookies — repurposed here to protect children's data with the same architecture that could protect the entire web.
+
+---
 
 ## License
 
@@ -498,7 +537,7 @@ Kindred Studio is licensed under **AGPL-3.0**. This means:
 
 **Commercial License**: Organizations that want to deploy Kindred Studio as a closed-source product or SaaS without sharing modifications can contact the author for a separate commercial license.
 
-**Model Agnostic**: Kindred Studio currently uses Anthropic’s Claude API for generation. The framework is designed to work with any LLM — local models (Llama, Mistral, Gemma), other APIs, or custom fine-tuned models. The pedagogical architecture is the value, not the API underneath.
+**Model Agnostic**: Kindred Studio currently uses Anthropic's Claude API for generation. The framework is designed to work with any LLM — local models (Llama, Mistral, Gemma), other APIs, or custom fine-tuned models. The pedagogical architecture is the value, not the API underneath.
 
 *Because everyone learns. Because everyone deserves privacy. Because every student deserves a teacher who gives a damn.*
 
